@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<style>
+			html,
+			body {
+				background-color: #efeff4;
+			}
+		</style>
+		<script src="js/mui.min.js"></script>
+		<link href="css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+		
+		</script>
+	</head>
+
+	<body>
+
+		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title">开始你的搜索吧<span id='wait' hidden="true"><span class="mui-icon mui-icon-spinner mui-spin"></span>请稍后</span></h1>
+		</header>
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+				<h5>可以语音搜索哦！</h5>
+				<div class="mui-input-row mui-search">
+					<input id="keyWords" type="text" class="mui-input-speech mui-input-clear" placeholder="搜索关键词，空格分词">
+				</div>
+				<button class="mui-btn mui-btn-primary mui-icon mui-icon-search" id='search'>
+					搜索
+				</button>
+				<a class="mui-btn mui-icon mui-icon-home" href="http://torrentkitty.vipsinaapp.com">
+					进入网站
+				</a>&nbsp;&nbsp;&nbsp;&nbsp;
+
+				<ul class="mui-table-view" id='result'>
+
+				</ul>
+			</div>
+		</div>
+	</body>
+	<script>
+		(function($) {
+			var keyWords = document.getElementById("keyWords");
+			var result = document.getElementById("result");
+			var wait = document.getElementById("wait");
+			var maxPage = 0;
+			var currentPage = 1;
+			mui.init({
+				swipeBack: false,
+				pullRefresh: {
+					container: '#pullrefresh',
+					up: {
+						contentrefresh: '正在加载...',
+						callback: pullupRefresh
+					}
+				}
+			});
+
+			function pullupRefresh() {
+				var self = this;
+				if (currentPage < maxPage) {
+					ajax(currentPage);
+					setTimeout(function() {
+						self.endPullupToRefresh();
+					}, 1500);
+				} else
+					self.endPullupToRefresh();
+
+			};
+
+			function showResult(jsonData) {
+				if(jsonData.length<=1)
+					alert("没有搜到结果，请检查关键词");
+				
+				for (var i = 1; i < jsonData.length; i++) {
+					var li = document.createElement('li');
+					li.setAttribute("class", "mui-table-view-cell mui-collapse");
+					var a = document.createElement('a');
+					a.setAttribute("class", "mui-navigate-right");
+					a.appendChild(document.createTextNode(jsonData[i].title));
+					var div = document.createElement('div');
+					div.setAttribute("class", "mui-collapse-content");
+					div.style.backgroundColor = '#efeff4';
+					div.style.color = 'green';
+					var detail = document.createTextNode("大小：" + jsonData[i].size + "  日期：" + jsonData[i].date + "    ");
+					var download_div = document.createElement("div");
+					download_div.setAttribute("style", "word-break: break-all;word-wrap: break-word;")
+					var download_link = document.createElement('textarea');
+					download_link.appendChild(document.createTextNode(jsonData[i].magnet));
+					var download = document.createElement('button');
+					download.setAttribute("class", "mui-btn mui-btn-danger");
+					download.setAttribute("id", jsonData[i].detail);
+					download.appendChild(document.createTextNode('下载'));
+					div.appendChild(detail);
+					download_div.appendChild(download_link)
+					div.appendChild(download_div);
+					div.appendChild(download);
+					li.appendChild(a);
+					li.appendChild(div);
+					result.appendChild(li);
+				};
+				var btns=document.getElementsByClassName("mui-btn-danger");
+				for(var btn in btns){
+					var hash=btns[btn].id;
+					btns[btn].onclick=function(){
+						
+						ajax2(this.id);
+					}
+					
+				}
+			
+			};
+			//成功响应的回调函数
+			var isJSON = true;
+			var success = function(response) {
+				wait.hidden = true;
+				if (isJSON) {
+					if (currentPage == 1)
+						result.innerHTML = '';
+					response = JSON.parse(response);
+					maxPage = response[0].maxPage;
+					currentPage += 1;
+					showResult(response);
+				} else {
+		
+					mui.openWindow({
+
+						url: 'detail.html',
+						id:response+'',
+
+						extras: {
+							detail:''+response
+						}
+					});
+
+
+				}
+			};
+			var ajax = function(index) {
+				wait.hidden = false;
+				currentPage = index;
+				var url = 'http://torrentkitty.vipsinaapp.com/search';
+				var type = 'POST';
+				var dataType = 'JSON';
+				var data = {
+					target: keyWords.value,
+					currentPage: currentPage + '',
+				};
+				isJSON = true;
+				$.post(url, data, success, dataType);
+			};
+			var ajax2 = function(hashCode) {
+			
+				wait.hidden = false;
+				var url = 'http://torrentkitty.vipsinaapp.com/detail';
+				var type = 'POST';
+				var dataType = 'text';
+				var data = {
+					target: hashCode
+
+				};
+				isJSON = false;
+				$.post(url, data, success, dataType);
+			};
+			//发送请求按钮的点击事件
+			document.getElementById("search").addEventListener('tap', function() {
+				currentPage = 1;
+				ajax(currentPage);
+			});
+			//点击描述中链接时，打开对应网页介绍；
+			$('body').on('tap', 'a', function(e) {
+				var href = this.getAttribute('href');
+				if (href) {
+					if (window.plus) {
+						plus.runtime.openURL(href);
+					} else {
+						location.href = href;
+					}
+				}
+			});
+		})(mui);
+	</script>
+
+</html>
