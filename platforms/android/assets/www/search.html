@@ -48,7 +48,7 @@
 			var keyWords = document.getElementById("keyWords");
 			var result = document.getElementById("result");
 			var wait = document.getElementById("wait");
-			var maxPage = 0;
+			var maxPage = 100;
 			var currentPage = 1;
 			mui.init({
 				swipeBack: false,
@@ -92,14 +92,14 @@
 					download_div.setAttribute("style", "word-break: break-all;word-wrap: break-word;")
 					var download_link = document.createElement('textarea');
 					download_link.appendChild(document.createTextNode(jsonData[i].magnet));
-					var download = document.createElement('button');
-					download.setAttribute("class", "mui-btn mui-btn-danger");
-					download.setAttribute("id", jsonData[i].detail);
-					download.appendChild(document.createTextNode('下载'));
+//					var download = document.createElement('button');
+//					download.setAttribute("class", "mui-btn mui-btn-danger");
+//					download.setAttribute("id", jsonData[i].detail);
+//					download.appendChild(document.createTextNode('下载'));
 					div.appendChild(detail);
 					download_div.appendChild(download_link)
 					div.appendChild(download_div);
-					div.appendChild(download);
+//					div.appendChild(download);
 					li.appendChild(a);
 					li.appendChild(div);
 					result.appendChild(li);
@@ -123,7 +123,7 @@
 					if (currentPage == 1)
 						result.innerHTML = '';
 					response = JSON.parse(response);
-					maxPage = response[0].maxPage;
+//					maxPage = response[0].maxPage;
 					currentPage += 1;
 					showResult(response);
 				} else {

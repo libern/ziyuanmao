@@ -48,7 +48,7 @@
 			var keyWords = document.getElementById("keyWords");
 			var result = document.getElementById("result");
 			var wait = document.getElementById("wait");
-			var maxPage = 0;
+			var maxPage = 100;
 			var currentPage = 1;
 			mui.init({
 				swipeBack: false,
@@ -123,7 +123,7 @@
 					if (currentPage == 1)
 						result.innerHTML = '';
 					response = JSON.parse(response);
-					maxPage = response[0].maxPage;
+//					maxPage = response[0].maxPage;
 					currentPage += 1;
 					showResult(response);
 				} else {
